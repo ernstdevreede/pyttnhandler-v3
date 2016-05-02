@@ -2,6 +2,7 @@ import sys
 import os
 import StringIO
 import signal
+import json
 from flask import Flask
 app = Flask(__name__)
 from pymongo import MongoClient
@@ -25,10 +26,23 @@ def hello_world():
   print >>output,  'Hello World!'+" %d messages"%cnt
   for deveui in deveuis:
     nr=db.uplinks.find({"deveui": deveui}, {"_id":False, "deveui": True}).count()
+    last=db.uplinks.find({"deveui":deveui},{"_id":0, "decoded":1, "metadata.geteway_time": { "$slice": 1}}).sort([("_id", -1)])
+    last=last[0]
+    lastdata=None
+    try:
+      lastdata=json.loads(last["decoded"])
+    except ValueError:
+      pass
+    lasttime=last["metadata"][0]["gateway_time"]
     print >>output, "<p/>";
     print >>output, "<table>"
     print >>output, "<tr>";
-    print >>output, "<td>",deveui,"</td><td>",nr ,"</td>"
+    print >>output, "<td>",deveui,"</td><td>",nr ,"</td>","<td>",lasttime,"</td>"
+    if lastdata:
+      if "t" in lastdata:
+        print >>output,"<td>",lastdata["t"],"</td>"
+      else:
+        print >>output, "</td>"
     print >>output, "</tr>";
     print >>output, "</table>"
 
