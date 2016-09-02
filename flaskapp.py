@@ -33,7 +33,11 @@ def hello_world():
       lastdata=json.loads(last["decoded"])
     except ValueError:
       pass
-    lasttime=last["metadata"][0]["gateway_time"]
+    try:
+      lasttime=last["metadata"][0]["gateway_time"]
+    except KeyError:
+      lasttime=last["metadata"][0]["gateway_timestamp"]
+ 
     print >>output, "<p/>";
     print >>output, "<table>"
     print >>output, "<tr>";
