@@ -37,11 +37,18 @@ def hello_world():
       lasttime=last["metadata"][0]["gateway_time"]
     except KeyError:
       lasttime=last["metadata"][0]["gateway_timestamp"]
+    try:
+      lastservertime=last["metadata"][0]["server_time"]
+    except KeyError:
+      lastservertime="-"
+  
  
     print >>output, "<p/>";
     print >>output, "<table>"
     print >>output, "<tr>";
     print >>output, "<td>",deveui,"</td><td>",nr ,"</td>","<td>",lasttime,"</td>"
+    print >>output, "<td>",lastservertime,"</td>"
+
     if lastdata:
       if "t" in lastdata:
         print >>output,"<td>",lastdata["t"],"</td>"
