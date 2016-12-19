@@ -26,36 +26,39 @@ def hello_world():
   print >>output,  'Hello World!'+" %d messages"%cnt
   for deveui in deveuis:
     nr=db.uplinks.find({"deveui": deveui}, {"_id":False, "deveui": True}).count()
-    last=db.uplinks.find({"deveui":deveui},{"_id":0, "decoded":1, "metadata.geteway_time": { "$slice": 1}}).sort([("_id", -1)])
-    last=last[0]
-    lastdata=None
-    try:
-      lastdata=json.loads(last["decoded"])
-    except ValueError:
-      pass
-    try:
-      lasttime=last["metadata"][0]["gateway_time"]
-    except KeyError:
-      lasttime=last["metadata"][0]["gateway_timestamp"]
-    try:
-      lastservertime=last["metadata"][0]["server_time"]
-    except KeyError:
-      lastservertime="-"
+    last=db.uplinks.find({"deveui":deveui},{"_id":0, "payload_fields":1, "metadata.time": { "$slice": 1}}).sort([("_id", -1)])
+    if "payload_fields" in last[0]:
+      print "[[",last[0]["payload_fields"], "]]"
+      last=last[0]
+      lastdata=None
+      lastdata=last["payload_fields"]
+#    try:
+#      lastdata=json.loads(last["payload_fields"])
+#    except ValueError:
+#      pass
+      try:
+	lasttime=last["metadata"]["gateways"][0]["time"]
+      except KeyError:
+	lasttime="-"
+      try:
+	lastservertime=last["metadata"]["time"]
+      except KeyError:
+	lastservertime="-"
   
  
-    print >>output, "<p/>";
-    print >>output, "<table>"
-    print >>output, "<tr>";
-    print >>output, "<td>",deveui,"</td><td>",nr ,"</td>","<td>",lasttime,"</td>"
-    print >>output, "<td>",lastservertime,"</td>"
+      print >>output, "<p/>";
+      print >>output, "<table>"
+      print >>output, "<tr>";
+      print >>output, "<td>",deveui,"</td><td>",nr ,"</td>","<td>",lasttime,"</td>"
+      print >>output, "<td>",lastservertime,"</td>"
 
-    if lastdata:
-      if "t" in lastdata:
-        print >>output,"<td>",lastdata["t"],"</td>"
-      else:
-        print >>output, "</td>"
-    print >>output, "</tr>";
-    print >>output, "</table>"
+      if lastdata:
+	if "t" in lastdata:
+	  print >>output,"<td>",lastdata["t"],"</td>"
+	else:
+	  print >>output, "</td>"
+      print >>output, "</tr>";
+      print >>output, "</table>"
 
   return output.getvalue()
 
@@ -65,5 +68,5 @@ def handler(signum, frame):
 
 if __name__ == '__main__':
 #    signal.signal(signal.SIGINT, handler)
-    app.run()
-#    print hello_world()
+#    app.run()
+    print hello_world()
