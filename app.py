@@ -68,5 +68,5 @@ def handler(signum, frame):
 
 if __name__ == '__main__':
 #    signal.signal(signal.SIGINT, handler)
-    app.run()
+    app.run(host='0.0.0.0', port=8080)
 #    print hello_world()
